@@ -1,88 +1,113 @@
-from ultralytics import YOLO
+from ultralytics import YOLO 
 import cv2
 import os
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
+from glob import glob
+import time
 
-tiles_folder = 'tiles'
+# Carregar modelo
+model = YOLO('yolov8x-seg.pt')
+
+# Parâmetros dos tiles
 tile_size = 960
-max_threads = 4  # Ajuste o número de threads aqui
+pasta_tiles = 'tiles'
+
+def carregar_tiles_existentes():
+    arquivos = sorted(glob(os.path.join(pasta_tiles, 'tile_*.jpg')))
+    tiles = []
+    largura_max = 0
+    altura_max = 0
+
+    for tile_path in arquivos:
+        nome = os.path.basename(tile_path).replace('.jpg', '')
+        try:
+            _, x, y = nome.split('_')
+            x, y = int(x), int(y)
+            tiles.append((tile_path, x, y))
+
+            largura_max = max(largura_max, x + tile_size)
+            altura_max = max(altura_max, y + tile_size)
+        except:
+            print(f"❌ Nome de tile inválido: {nome}")
+
+    print(f"🔹 Total de tiles encontrados: {len(tiles)}")
+    return tiles, (largura_max, altura_max)
 
 def processar_tile(tile_info):
-    tile_name, x_offset, y_offset = tile_info
+    tile_path, x, y = tile_info
+    img = cv2.imread(tile_path)
 
-    tile_path = os.path.join(tiles_folder, tile_name)
-    tile_img = cv2.imread(tile_path)
+    results = model(img, imgsz=tile_size, conf=0.2)
+    deteccoes = results[0]
+    count_bovinos = 0
+    tile_result = img.copy()
 
-    # DESATIVADO para debug - sem filtro de verde
-    # if not is_green_dominant(tile_img):
-    #     return (tile_name, [], np.zeros_like(tile_img))
+    for box in deteccoes.boxes:
+        classe = int(box.cls.item())
+        conf = box.conf.item()
+        if classe == 19:  # 'cow'
+            count_bovinos += 1
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+            cv2.rectangle(tile_result, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            label = f'Cow {conf:.2f}'
+            cv2.putText(tile_result, label, (x1, y1 - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-    model = YOLO('yolov8x.pt')
+    return (tile_path, count_bovinos, tile_result)
 
-    # Confiança menor pra pegar mais detecções
-    results = model(tile_img, imgsz=tile_size, conf=0.1)
+def executar_teste(n_threads, tiles, dimensoes, salvar_imagem=False):
+    largura_total, altura_total = dimensoes
+    resultado_final = np.zeros((altura_total, largura_total, 3), dtype=np.uint8)
+    total_bovinos = 0
+    relatorio = []
 
-    names = model.names
+    start_time = time.time()
+    with ThreadPoolExecutor(max_workers=n_threads) as executor:
+        futures = [executor.submit(processar_tile, tile) for tile in tiles]
+        for future in futures:
+            tile_path, bovinos, tile_result = future.result()
+            nome = os.path.basename(tile_path).replace('.jpg', '')
+            _, x, y = nome.split('_')
+            x, y = int(x), int(y)
+            h, w, _ = tile_result.shape
+            resultado_final[y:y + h, x:x + w] = tile_result
+            total_bovinos += bovinos
+            relatorio.append((nome, bovinos))
 
-    # Debug: imprime as classes detectadas neste tile
-    print(f"Tile {tile_name} detectou as seguintes classes:")
-    for box in results[0].boxes:
-        cls_id = int(box.cls[0])
-        print(f" - {names[cls_id]}")
+    tempo_total = time.time() - start_time
 
-    bovinos = [
-        box for box in results[0].boxes
-        if names[int(box.cls[0])] == 'bovinos'  # ajuste pro seu nome exato
-    ]
+    if salvar_imagem:
+        cv2.imwrite('resultado_final.jpg', resultado_final)
+        with open('relatorio_bovinos.txt', 'w') as f:
+            f.write("Relatório de Detecção de Bovinos por Tile\n")
+            f.write("=" * 40 + "\n")
+            for nome, qtd in sorted(relatorio):
+                f.write(f"{nome}: {qtd} bovinos\n")
+            f.write("=" * 40 + "\n")
+            f.write(f"Total geral de bovinos: {total_bovinos}\n")
 
-    tile_result = np.zeros_like(tile_img)
+    return tempo_total
 
-    for box in bovinos:
-        xyxy = box.xyxy[0].cpu().numpy().astype(int)
-        cv2.rectangle(tile_result, (xyxy[0], xyxy[1]), (xyxy[2], xyxy[3]), (0, 255, 0), 2)
-        cv2.putText(tile_result, 'bovinos', (xyxy[0], xyxy[1] - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+if __name__ == "__main__":
+    tiles, dimensoes = carregar_tiles_existentes()
+    configuracoes_threads = [1, 2, 4, 8, 16, 32]
+    tempos = {}
 
-    return (tile_name, bovinos, tile_result)
+    for i, n in enumerate(configuracoes_threads):
+        print(f"\n🔧 Executando com {n} thread(s)...")
+        salvar = n == 1  # Salvar resultados apenas na primeira execução
+        tempo = executar_teste(n, tiles, dimensoes, salvar_imagem=salvar)
+        tempos[n] = tempo
+        print(f"⏱️ Tempo total com {n} thread(s): {tempo:.2f} segundos")
 
-
-tile_files = sorted(os.listdir(tiles_folder))
-num_tiles_horizontal = (1920 // tile_size)  # ajuste se necessário
-
-tile_infos = []
-for tile_name in tile_files:
-    idx = int(tile_name.split('_')[1].split('.')[0])
-    x_offset = (idx % num_tiles_horizontal) * tile_size
-    y_offset = (idx // num_tiles_horizontal) * tile_size
-    tile_infos.append((tile_name, x_offset, y_offset))
-
-max_x = max(x for _, x, _ in tile_infos)
-max_y = max(y for _, _, y in tile_infos)
-height = max_y + tile_size
-width = max_x + tile_size
-final_image = np.zeros((height, width, 3), dtype=np.uint8)
-
-total_bovinos = 0
-
-with ThreadPoolExecutor(max_workers=max_threads) as executor:
-    futures = [executor.submit(processar_tile, info) for info in tile_infos]
-
-    for future in as_completed(futures):
-        tile_name, bovinos, tile_result = future.result()
-        idx = int(tile_name.split('_')[1].split('.')[0])
-        x_offset = (idx % num_tiles_horizontal) * tile_size
-        y_offset = (idx // num_tiles_horizontal) * tile_size
-
-        total_bovinos += len(bovinos)
-
-        for c in range(3):
-            final_image[y_offset:y_offset+tile_size, x_offset:x_offset+tile_size, c] = \
-                np.maximum(final_image[y_offset:y_offset+tile_size, x_offset:x_offset+tile_size, c], tile_result[:, :, c])
-
-print(f'Total de bovinos detectados na imagem inteira: {total_bovinos}')
-
-cv2.imwrite('deteccoes_resultado.jpg', final_image)
-print("Imagem com detecções salva como 'deteccoes_resultado.jpg'")
-cv2.imshow('Detecções Completas', final_image)
-cv2.waitKey(0)
+    print("\n📊 Comparativo de Performance")
+    tempo_base = tempos[1]
+    for n in configuracoes_threads:
+        tempo = tempos[n]
+        speedup = tempo_base / tempo
+        eficiencia = speedup / n
+        print(f"\n🧵 {n} thread(s):")
+        print(f"   Tempo total: {tempo:.2f} s")
+        print(f"   Speedup: {speedup:.2f}")
+        print(f"   Eficiência: {eficiencia:.2f}")
