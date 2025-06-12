@@ -1,41 +1,52 @@
 from PIL import Image
 import math
+import sys
+import os
 
-# Carrega a imagem original
-imagem_original_path = "imagembovinos4.jpg"
-imagem = Image.open(imagem_original_path)
+# Nome esperado do arquivo de imagem
+imagem_original_path = "imagembov.jpg"
 
-# Define o tamanho alvo em bytes (4GB)
-tamanho_alvo_bytes = 1 * 1024**3  # 4GB
+# ✅ Verifica se o arquivo realmente existe
+if not os.path.exists(imagem_original_path):
+    print(f"❌ Arquivo '{imagem_original_path}' não encontrado no diretório atual:")
+    print(f"📁 Diretório atual: {os.getcwd()}")
+    print("🗂️ Arquivos encontrados:", os.listdir())
+    sys.exit(1)
 
-# Tamanho da imagem original em pixels
-width, height = imagem.size
-print(f"Tamanho original da imagem: {width}x{height} pixels")
+try:
+    imagem = Image.open(imagem_original_path)
 
-# Estimativa do tamanho da imagem original em bytes (não compactada)
-bytes_por_pixel = len(imagem.getbands())  # ex: 3 para RGB, 4 para RGBA
-tamanho_imagem_est = width * height * bytes_por_pixel
-print(f"Tamanho estimado da imagem original (não compactada): {tamanho_imagem_est / (1024**2):.2f} MB")
+    tamanho_alvo_bytes = 0.2 * 1024**3  # 4GB
 
-# Calcula o fator de repetição por eixo para atingir ~4GB
-fator_repeticao = math.ceil(math.sqrt(tamanho_alvo_bytes / tamanho_imagem_est))
-print(f"Repetição por eixo: {fator_repeticao} vezes")
+    width, height = imagem.size
+    print(f"📏 Tamanho original da imagem: {width}x{height} pixels")
 
-# Cria nova imagem grande para colar a original repetida
-nova_largura = width * fator_repeticao
-nova_altura = height * fator_repeticao
-print(f"Nova imagem terá tamanho: {nova_largura}x{nova_altura} pixels")
+    bytes_por_pixel = len(imagem.getbands())
+    tamanho_imagem_est = width * height * bytes_por_pixel
+    print(f"📦 Tamanho estimado (não compactado): {tamanho_imagem_est / (1024**2):.2f} MB")
 
-imagem_grande = Image.new(imagem.mode, (nova_largura, nova_altura))
+    fator_repeticao = math.ceil(math.sqrt(tamanho_alvo_bytes / tamanho_imagem_est))
+    print(f"🔁 Repetição por eixo: {fator_repeticao} vezes")
 
-# Preenche com mosaico da imagem original
-for i in range(fator_repeticao):
-    for j in range(fator_repeticao):
-        pos = (i * width, j * height)
-        imagem_grande.paste(imagem, pos)
+    nova_largura = width * fator_repeticao
+    nova_altura = height * fator_repeticao
+    print(f"🖼️ Nova imagem: {nova_largura}x{nova_altura} pixels")
 
-# Salva imagem TIFF sem compressão (compression='raw' no PIL)
-output_path = "imagem_grande.tif"
-imagem_grande.save(output_path, compression='raw')
+    imagem_grande = Image.new(imagem.mode, (nova_largura, nova_altura))
 
-print(f"Imagem TIFF gigante salva em {output_path}")
+    for i in range(fator_repeticao):
+        for j in range(fator_repeticao):
+            imagem_grande.paste(imagem, (i * width, j * height))
+
+    output_path = "imagem_grande.tif"
+    imagem_grande.save(output_path, compression='raw')
+
+    print(f"✅ Imagem TIFF gigante salva em: {output_path}")
+
+except FileNotFoundError:
+    print("❌ Arquivo de imagem não encontrado mesmo após a verificação.")
+except MemoryError:
+    print("❌ Erro de memória! Tente reduzir o fator de repetição ou use uma máquina com mais RAM.")
+except Exception as e:
+    print(f"❌ Erro inesperado: {e}")
+    sys.exit(1)
