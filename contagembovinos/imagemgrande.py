@@ -16,7 +16,7 @@ if not os.path.exists(imagem_original_path):
 try:
     imagem = Image.open(imagem_original_path)
 
-    tamanho_alvo_bytes = 0.2 * 1024**3  # 4GB
+    tamanho_alvo_bytes = 3.9 * 1024**3  # 4GB
 
     width, height = imagem.size
     print(f"📏 Tamanho original da imagem: {width}x{height} pixels")
