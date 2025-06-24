@@ -4,7 +4,7 @@ import sys
 import os
 
 # Nome esperado do arquivo de imagem
-imagem_original_path = "contagembovinos/imagembov.jpg"
+imagem_original_path = "imagembov.jpg"
 
 # ✅ Verifica se o arquivo realmente existe
 if not os.path.exists(imagem_original_path):
@@ -16,7 +16,7 @@ if not os.path.exists(imagem_original_path):
 try:
     imagem = Image.open(imagem_original_path)
 
-    tamanho_alvo_bytes = 3.9 * 1024**3  # 4GB
+    tamanho_alvo_bytes = 0.5 * 1024**3  # 4GB
 
     width, height = imagem.size
     print(f"📏 Tamanho original da imagem: {width}x{height} pixels")
