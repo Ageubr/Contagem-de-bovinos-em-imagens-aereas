@@ -4,7 +4,7 @@ import sys
 import os
 
 # Nome esperado do arquivo de imagem
-imagem_original_path = "imagembov.jpg"
+imagem_original_path = "contagembovinos/imagembov.jpg"
 
 # ✅ Verifica se o arquivo realmente existe
 if not os.path.exists(imagem_original_path):
