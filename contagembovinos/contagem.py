@@ -1,15 +1,11 @@
-from ultralytics import YOLO 
+from concurrent.futures import ProcessPoolExecutor
+from glob import glob
+from ultralytics import YOLO
 import cv2
 import os
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor
-from glob import glob
 import time
 
-# Carregar modelo
-model = YOLO('yolov8x-seg.pt')
-
-# Parâmetros dos tiles
 tile_size = 960
 pasta_tiles = 'tiles'
 
@@ -25,7 +21,6 @@ def carregar_tiles_existentes():
             _, x, y = nome.split('_')
             x, y = int(x), int(y)
             tiles.append((tile_path, x, y))
-
             largura_max = max(largura_max, x + tile_size)
             altura_max = max(altura_max, y + tile_size)
         except:
@@ -35,9 +30,11 @@ def carregar_tiles_existentes():
     return tiles, (largura_max, altura_max)
 
 def processar_tile(tile_info):
+    from ultralytics import YOLO  # Importação e carregamento do modelo dentro do processo
     tile_path, x, y = tile_info
-    img = cv2.imread(tile_path)
+    model = YOLO('yolov5n.pt')  # Cada processo carrega seu próprio modelo
 
+    img = cv2.imread(tile_path)
     results = model(img, imgsz=tile_size, conf=0.2)
     deteccoes = results[0]
     count_bovinos = 0
@@ -56,17 +53,16 @@ def processar_tile(tile_info):
 
     return (tile_path, count_bovinos, tile_result)
 
-def executar_teste(n_threads, tiles, dimensoes, salvar_imagem=False):
+def executar_teste(n_processos, tiles, dimensoes, salvar_imagem=False):
     largura_total, altura_total = dimensoes
     resultado_final = np.zeros((altura_total, largura_total, 3), dtype=np.uint8)
     total_bovinos = 0
     relatorio = []
 
     start_time = time.time()
-    with ThreadPoolExecutor(max_workers=n_threads) as executor:
-        futures = [executor.submit(processar_tile, tile) for tile in tiles]
-        for future in futures:
-            tile_path, bovinos, tile_result = future.result()
+    with ProcessPoolExecutor(max_workers=n_processos) as executor:
+        futures = executor.map(processar_tile, tiles)
+        for tile_path, bovinos, tile_result in futures:
             nome = os.path.basename(tile_path).replace('.jpg', '')
             _, x, y = nome.split('_')
             x, y = int(x), int(y)
@@ -91,23 +87,24 @@ def executar_teste(n_threads, tiles, dimensoes, salvar_imagem=False):
 
 if __name__ == "__main__":
     tiles, dimensoes = carregar_tiles_existentes()
-    configuracoes_threads = [1, 2, 4, 8, 16, 32]
+    configuracoes_processos = [1, 2, 4]
     tempos = {}
 
-    for i, n in enumerate(configuracoes_threads):
-        print(f"\n🔧 Executando com {n} thread(s)...")
-        salvar = n == 1  # Salvar resultados apenas na primeira execução
+    for n in configuracoes_processos:
+        print(f"\n🔧 Executando com {n} processo(s)...")
+        salvar = n == 1  # Salvar imagem e relatório apenas na primeira execução
         tempo = executar_teste(n, tiles, dimensoes, salvar_imagem=salvar)
         tempos[n] = tempo
-        print(f"⏱️ Tempo total com {n} thread(s): {tempo:.2f} segundos")
+        print(f"⏱️ Tempo total com {n} processo(s): {tempo:.2f} segundos")
 
     print("\n📊 Comparativo de Performance")
     tempo_base = tempos[1]
-    for n in configuracoes_threads:
+    for n in configuracoes_processos:
         tempo = tempos[n]
         speedup = tempo_base / tempo
         eficiencia = speedup / n
-        print(f"\n🧵 {n} thread(s):")
+        print(f"\n🧵 {n} processo(s):")
         print(f"   Tempo total: {tempo:.2f} s")
         print(f"   Speedup: {speedup:.2f}")
         print(f"   Eficiência: {eficiencia:.2f}")
+    print("\n🔚 Execução concluída!")
