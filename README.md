@@ -10,12 +10,15 @@ A proposta visa tanto validar a viabilidade técnica da solução quanto analisa
 Contar manualmente bovinos em grandes áreas rurais é uma tarefa demorada, sujeita a erros humanos e pouco escalável. A aquisição de imagens por drones fornece uma visão ampla e precisa das pastagens, mas essas imagens podem ser de alta resolução e de grande tamanho, o que torna o processamento computacional um desafio. A proposta visa otimizar esse processo dividindo a imagem em pequenas partes (tiles), processando-as paralelamente e aplicando um modelo treinado para detecção de bovinos.
 
 3. Descrição da Solução
+   
 A solução é composta por três etapas principais:
+
 	Geração de imagem grande: uma imagem original é repetida para simular um arquivo de grande volume (próximo a 20 GB), garantindo um cenário realista para teste de desempenho.
  Segmentação em tiles: a imagem é dividida em blocos de 103680x69093 pixels para facilitar o processamento.
  Contagem de bovinos por tile: cada tile é processado por um modelo YOLOv5 em execução paralela, detectando e contando bovinos. Os resultados são reunidos em uma imagem final e um relatório.
 
-4. Detalhamento do que foi feito
+5. Detalhamento do que foi feito
+6. 
 •	Geração da imagem grande: usando a biblioteca PIL, a imagem original foi repetida em ambos os eixos (x e y) até que o tamanho estimado da imagem não compactada alcançasse aproximadamente 20 GB. A imagem foi salva no formato TIFF sem compressão.
 •	Divisão em tiles: a imagem TIFF foi carregada com tifffile e dividida em blocos de 103680x69093 pixels, que foram salvos como arquivos JPEG em uma pasta específica.
 •	Processamento paralelo e contagem:
@@ -23,8 +26,10 @@ o	Cada tile foi processado com o modelo YOLOv5, configurado para detectar objeto
 o	Foi utilizada a biblioteca concurrent.futures com ProcessPoolExecutor para paralelizar o processamento com 1, 2, 4, 8 e 16 processos.
 o	Os tiles com detecções foram reunidos em uma imagem final.
 o	Um relatório em texto foi gerado contendo a contagem individual por tile e o total geral.
+
 4.1 Ambiente de Testes
 Os experimentos foram conduzidos em uma única plataforma computacional para avaliação do desempenho do sistema. A configuração da máquina utilizada está detalhada a seguir:
+
 •	Memória RAM: 16 GB DDR4
 •	Processador: Intel Core i7-12700 (12 núcleos, 20 threads)
 •	Placa de vídeo: Intel UHD Graphics 770 (GPU integrada)
