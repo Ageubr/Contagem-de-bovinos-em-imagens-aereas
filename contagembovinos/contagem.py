@@ -87,7 +87,7 @@ def executar_teste(n_processos, tiles, dimensoes, salvar_imagem=False):
 
 if __name__ == "__main__":
     tiles, dimensoes = carregar_tiles_existentes()
-    configuracoes_processos = [1, 2, 4]
+    configuracoes_processos = [1, 2, 4, 8, 16]
     tempos = {}
 
     for n in configuracoes_processos:
