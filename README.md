@@ -13,12 +13,12 @@ Contar manualmente bovinos em grandes áreas rurais é uma tarefa demorada, suje
    
 A solução é composta por três etapas principais:
 
-	Geração de imagem grande: uma imagem original é repetida para simular um arquivo de grande volume (próximo a 20 GB), garantindo um cenário realista para teste de desempenho.
+ Geração de imagem grande: uma imagem original é repetida para simular um arquivo de grande volume (próximo a 20 GB), garantindo um cenário realista para teste de desempenho.
  Segmentação em tiles: a imagem é dividida em blocos de 103680x69093 pixels para facilitar o processamento.
  Contagem de bovinos por tile: cada tile é processado por um modelo YOLOv5 em execução paralela, detectando e contando bovinos. Os resultados são reunidos em uma imagem final e um relatório.
 
 5. Detalhamento do que foi feito
-6. 
+ 
 •	Geração da imagem grande: usando a biblioteca PIL, a imagem original foi repetida em ambos os eixos (x e y) até que o tamanho estimado da imagem não compactada alcançasse aproximadamente 20 GB. A imagem foi salva no formato TIFF sem compressão.
 •	Divisão em tiles: a imagem TIFF foi carregada com tifffile e dividida em blocos de 103680x69093 pixels, que foram salvos como arquivos JPEG em uma pasta específica.
 •	Processamento paralelo e contagem:
