@@ -33,22 +33,28 @@ Os experimentos foram conduzidos em uma única plataforma computacional para ava
 •	Sistema Operacional: Windows 10 (64 bits)
 
 4.2 Imagens Utilizadas no Experimento
+
 ![image](https://github.com/user-attachments/assets/e3059652-dd70-4eec-895d-0bf1918048c8)
+
 Figura 1.1 - Imagem base de bovinos criada pelo ChatGPT:
 Esta imagem foi gerada artificialmente pelo ChatGPT e representa um pequeno grupo de bovinos em um pasto verde. Ela contém animais nas cores branca e marrom, dispostos de forma a simular uma cena realista. Essa imagem base serve como unidade para a criação de cenários maiores, funcionando como um padrão repetível para compor áreas extensas.
 
  ![image](https://github.com/user-attachments/assets/c22f2b3f-9fa5-4029-97f5-46ae640014c5)
+ 
 Figura 1.2 - Imagem simulada de 4GB criada pelo ChatGPT:
 Esta imagem de alta resolução foi criada pelo ChatGPT através da repetição em mosaico da imagem base, resultando em um arquivo volumoso (aproximadamente 4 GB sem compressão). Essa composição simula um cenário amplo e realista para o monitoramento de bovinos, possibilitando a avaliação do desempenho da segmentação e do processamento paralelo em grandes volumes de dados.
 
 5. Resultados
 A contagem de bovinos foi realizada com sucesso para todos os tiles gerados. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
+
 ![image](https://github.com/user-attachments/assets/d25c784e-95b9-4156-8505-bc86e2beff72)
 
  ![image](https://github.com/user-attachments/assets/832dac22-34a2-4410-9fe9-a8df35e9b2be)
+ 
 Figura 1.3 - Descrição dos gráficos: Os gráficos mostram o desempenho no processamento de 20 GB de dados com diferentes quantidades de processos 1, 2, 4, 8 e 16. Observa-se que o melhor resultado foi com 4 processos, apresentando o menor tempo total, maior speedup e uma eficiência razoável. Com 8 e 16 processos, o desempenho piorou, indicando que o excesso de paralelismo causou sobrecarga no sistema. Isso mostra que mais processos nem sempre significam melhor desempenho.
 
  ![image](https://github.com/user-attachments/assets/933850ff-c003-413e-a7f6-82948e5bff94)
+ 
 Figura 1.4 - Descrição dos gráficos: Os gráficos mostram três gráficos que comparam o desempenho no processamento de 20 GB com diferentes quantidades de processos. O menor tempo de execução e o melhor desempenho ocorreram com 4 processos. A partir desse ponto, o uso de mais processos não trouxe ganhos e ainda reduziu a eficiência, indicando que o excesso de paralelismo prejudicou o resultado.
 
 6. Conclusão
