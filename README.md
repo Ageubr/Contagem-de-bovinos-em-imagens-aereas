@@ -47,7 +47,7 @@ Esta imagem de alta resolução foi criada pelo ChatGPT através da repetição 
 5. Resultados
 A contagem de bovinos foi realizada com sucesso para todos os tiles gerados. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
 
-![image](https://github.com/user-attachments/assets/d25c784e-95b9-4156-8505-bc86e2beff72)
+![image](https://github.com/user-attachments/assets/6988329f-3b87-417f-be2b-5bbe979d6657)
 
  ![image](https://github.com/user-attachments/assets/832dac22-34a2-4410-9fe9-a8df35e9b2be)
  
