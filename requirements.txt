@@ -1,0 +1,7 @@
+ultralytics
+opencv-python
+numpy
+pillow
+tifffile
+
+#pip install -r requirements.txt
