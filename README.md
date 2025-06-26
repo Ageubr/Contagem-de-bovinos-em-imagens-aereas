@@ -55,7 +55,7 @@ Figura 1.3 - A imagem final mostra o resultado do teste de detecção de bovinos
 5. Resultados
 A contagem foi realizada com sucesso para todos os 7668 tiles gerados e foram detectados cerca de 90342 bovinos. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
 
-![image](https://github.com/user-attachments/assets/da4cf860-2041-4a8e-828a-d856dd756eeb)
+![image](https://github.com/user-attachments/assets/ff5e0554-731a-4d8b-83b8-da1a5b56dd42)
 
 Figura 1.4 - Descrição da tabela: A tabela apresenta os resultados do processamento de 20 GB de dados utilizando diferentes quantidades de processos (1, 2, 4, 8 e 16). Para cada configuração, são mostrados o tempo total de execução, o speedup (aceleração em relação à execução sequencial) e a eficiência. Observa-se que o menor tempo foi alcançado com 4 processos, que também teve o maior speedup (1.36). A eficiência diminui conforme o número de processos aumenta, indicando que o uso excessivo de paralelismo reduz o aproveitamento dos recursos. Essa diminuição da eficiência ocorre principalmente por causa do overhead e da escala limitada do paralelismo.
 
