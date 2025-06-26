@@ -20,7 +20,7 @@ A solução é composta por três etapas principais:
 4. Detalhamento do que foi feito
  
 •	Geração da imagem grande: usando a biblioteca PIL, a imagem original foi repetida em ambos os eixos (x e y) até que o tamanho estimado da imagem não compactada alcançasse aproximadamente 20 GB. A imagem foi salva no formato TIFF sem compressão.
-•	Divisão em tiles: a imagem TIFF foi carregada com tifffile e dividida em blocos de menores pixels, que foram salvos como arquivos JPEG em uma pasta específica.
+•	Divisão em tiles: a imagem TIFF foi carregada com tifffile e dividida em 7672 blocos de menores pixels, que foram salvos como arquivos JPEG em uma pasta específica.
 •	Processamento paralelo e contagem:
 o	Cada tile foi processado com o modelo YOLOv5, configurado para detectar objetos com confiança acima de 0.2 e foco na classe "cow".
 o	Foi utilizada a biblioteca concurrent.futures com ProcessPoolExecutor para paralelizar o processamento com 1, 2, 4, 8 e 16 processos.
