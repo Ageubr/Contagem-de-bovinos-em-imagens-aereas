@@ -53,18 +53,18 @@ Esta imagem de alta resolução foi criada pelo ChatGPT através da repetição 
 Figura 1.3 - A imagem final mostra o resultado do teste de detecção de bovinos em uma imagem menor de 100 MB. Para facilitar o processamento, a imagem original foi dividida em 48 partes (tiles), que foram processadas individualmente. Após a detecção, as partes foram reunidas novamente, formando a imagem completa. Os bovinos detectados aparecem com retângulos verdes, evidenciando a eficácia do modelo utilizado.
 
 5. Resultados
-A contagem de bovinos foi realizada com sucesso para todos os tiles gerados. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
+A contagem foi realizada com sucesso para todos os 7672 tiles gerados e foram detectados cerca de 90342 bovinos. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
 
 ![image](https://github.com/user-attachments/assets/9cd1f46c-2e03-4700-b4b0-12531dafe7a1)
 
 Figura 1.4 - Descrição da tabela: A tabela apresenta os resultados do processamento de 20 GB de dados utilizando diferentes quantidades de processos (1, 2, 4, 8 e 16). Para cada configuração, são mostrados o tempo total de execução, o speedup (aceleração em relação à execução sequencial) e a eficiência. Observa-se que o menor tempo foi alcançado com 4 processos, que também teve o maior speedup (1.36). A eficiência diminui conforme o número de processos aumenta, indicando que o uso excessivo de paralelismo reduz o aproveitamento dos recursos. Essa diminuição da eficiência ocorre principalmente por causa do overhead e da escala limitada do paralelismo.
 
- ![image](https://github.com/user-attachments/assets/b4846c46-4dcb-4d68-99e4-8c1c2b3eb6c4)
+![graficos_linha_comparativo](https://github.com/user-attachments/assets/069a5c10-b809-4ebf-a328-7b3154849e7a)
 
 Figura 1.5 - Descrição dos gráficos: Os gráficos mostram o desempenho no processamento de 20 GB de dados com diferentes quantidades de processos 1, 2, 4, 8 e 16. Observa-se que o melhor resultado foi com 4 processos, apresentando o menor tempo total, maior speedup e uma eficiência razoável. Com 8 e 16 processos, o desempenho piorou, indicando que o excesso de paralelismo causou sobrecarga no sistema. Isso mostra que mais processos nem sempre significam melhor desempenho.
 
-![image](https://github.com/user-attachments/assets/50be1a18-47bf-4b9a-b073-377dfd5f6518)
- 
+![graficos_barras_comparativo](https://github.com/user-attachments/assets/1c57bd6a-f5f9-4f24-b997-f328aaac65ff)
+
 Figura 1.6 - Descrição dos gráficos: Os gráficos mostram três gráficos que comparam o desempenho no processamento de 20 GB com diferentes quantidades de processos. O menor tempo de execução e o melhor desempenho ocorreram com 4 processos. A partir desse ponto, o uso de mais processos não trouxe ganhos e ainda reduziu a eficiência, indicando que o excesso de paralelismo prejudicou o resultado.
 
 
