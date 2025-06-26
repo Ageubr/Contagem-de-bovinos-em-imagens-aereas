@@ -20,7 +20,7 @@ A solução é composta por três etapas principais:
 4. Detalhamento do que foi feito
  
 •	Geração da imagem grande: usando a biblioteca PIL, a imagem original foi repetida em ambos os eixos (x e y) até que o tamanho estimado da imagem não compactada alcançasse aproximadamente 20 GB. A imagem foi salva no formato TIFF sem compressão.
-•	Divisão em tiles: a imagem TIFF foi carregada com tifffile e dividida em 7672 blocos de menores pixels, que foram salvos como arquivos JPEG em uma pasta específica.
+•	Divisão em tiles: a imagem TIFF foi carregada com tifffile e dividida em 7668 blocos de menores pixels, que foram salvos como arquivos JPEG em uma pasta específica.
 •	Processamento paralelo e contagem:
 o	Cada tile foi processado com o modelo YOLOv5, configurado para detectar objetos com confiança acima de 0.2 e foco na classe "cow".
 o	Foi utilizada a biblioteca concurrent.futures com ProcessPoolExecutor para paralelizar o processamento com 1, 2, 4, 8 e 16 processos.
@@ -53,7 +53,7 @@ Esta imagem de alta resolução foi criada pelo ChatGPT através da repetição 
 Figura 1.3 - A imagem final mostra o resultado do teste de detecção de bovinos em uma imagem menor de 100 MB. Para facilitar o processamento, a imagem original foi dividida em 48 partes (tiles), que foram processadas individualmente. Após a detecção, as partes foram reunidas novamente, formando a imagem completa. Os bovinos detectados aparecem com retângulos verdes, evidenciando a eficácia do modelo utilizado.
 
 5. Resultados
-A contagem foi realizada com sucesso para todos os 7672 tiles gerados e foram detectados cerca de 90342 bovinos. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
+A contagem foi realizada com sucesso para todos os 7668 tiles gerados e foram detectados cerca de 90342 bovinos. A execução foi feita com diferentes quantidades de processos para medir o ganho de desempenho. Os resultados de tempo e eficiência foram:
 
 ![image](https://github.com/user-attachments/assets/da4cf860-2041-4a8e-828a-d856dd756eeb)
 
